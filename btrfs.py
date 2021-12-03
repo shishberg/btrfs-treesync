@@ -4,6 +4,10 @@ import re
 
 subvol_re = re.compile(r'ID (\d+) gen (\d+) parent (\d+) top level (\d+) received_uuid ([0-9a-f-]+) *uuid ([0-9a-f-]+) * path (.*)')
 
+def subvolumes(volume):
+    out = subprocess.check_output(['/usr/bin/btrfs', 'subvolume', 'list', '-puR', volume])
+    return [Subvolume(line) for line in out.decode('utf-8').splitlines()]
+
 @dataclass
 class Subvolume:
     id: int
@@ -25,7 +29,3 @@ class Subvolume:
         self.received_uuid = m.group(5)
         self.uuid = m.group(6)
         self.path = m.group(7)
-
-def subvolumes(volume):
-    out = subprocess.check_output(['/usr/bin/btrfs', 'subvolume', 'list', '-puR', volume])
-    return [Subvolume(line) for line in out.decode('utf-8').splitlines()]

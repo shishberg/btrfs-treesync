@@ -11,6 +11,8 @@ def main():
 
     for subvol in btrfs.subvolumes(args.src):
         print(subvol)
+    for subvol in btrfs.subvolumes(args.dst):
+        print(subvol)
 
     return 0
 
