@@ -9,11 +9,19 @@ def main():
     parser.add_argument('--root', type=str, default='.snapshots', help='root subvolume to sync')
     args = parser.parse_args()
 
-    src_subvols = btrfs.subvolumes(args.src)
-    dst_subvols = btrfs.subvolumes(args.dst)
+    src = btrfs.subvolumes(args.src)
+    dst = btrfs.subvolumes(args.dst)
 
-    for sv in src_subvols.from_root(args.root):
-        print(sv)
+    for src_sv in src.from_root(args.root):
+        if src_sv.uuid in dst.by_received_uuid:
+            continue
+        
+        src_sv.send(dst)
+
+        dst = btrfs.subvolumes(args.dst)
+        if not src_sv.uuid in dst.by_received_uuid:
+            print("sent from %s but wasn't received at %s" % (src_sv, dst))
+            return 1
 
     return 0
 
