@@ -2,7 +2,7 @@ import argparse
 import btrfs
 import sys
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('src', type=str, help='source btrfs volume')
     parser.add_argument('dst', type=str, help='destination btrfs volume')

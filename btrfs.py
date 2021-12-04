@@ -66,11 +66,11 @@ class Subvolume(object):
         output = subprocess.check_output(recv_cmd, stdin=ps.stdout)
         ps.wait()
 
-    def is_read_only(self):
+    def is_read_only(self) -> bool:
         out = subprocess.check_output([BTRFS_BIN, 'property', 'get', '-ts', self.full_path, 'ro'])
         return 'true' in out.decode('utf-8').lower()
 
-    def set_read_only(self, ro):
+    def set_read_only(self, ro: bool):
         cmd = [BTRFS_BIN, 'property', 'set', '-ts', self.full_path, 'ro', str(ro).lower()]
         print(' '.join(cmd))
         subprocess.check_output(cmd)
@@ -102,7 +102,7 @@ class Subvolumes(object):
     def from_root(self, root):
         yield from enumerate_from_root(self.roots, root)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.volume
 
 def sort_by_path(subvols: list[Subvolume]):
