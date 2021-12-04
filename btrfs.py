@@ -57,7 +57,7 @@ class Subvolume(object):
             if prev_sibling:
                 send_cmd += ['-c', prev_sibling.full_path]
         send_cmd.append(self.full_path)
-        recv_cmd = [BTRFS_BIN, 'receive', os.path.join(dst.volume, self.path)]
+        recv_cmd = [BTRFS_BIN, 'receive', os.path.dirname(os.path.join(dst.volume, self.path))]
         
         print(' '.join(send_cmd), '\\')
         print('|', ' '.join(recv_cmd))
@@ -65,6 +65,15 @@ class Subvolume(object):
         ps = subprocess.Popen(send_cmd, stdout=subprocess.PIPE)
         output = subprocess.check_output(recv_cmd, stdin=ps.stdout)
         ps.wait()
+
+    def is_read_only(self):
+        out = subprocess.check_output([BTRFS_BIN, 'property', 'get', '-ts', self.full_path, 'ro'])
+        return 'true' in out.decode('utf-8').lower()
+
+    def set_read_only(self, ro):
+        cmd = [BTRFS_BIN, 'property', 'set', '-ts', self.full_path, 'ro', str(ro).lower()]
+        print(' '.join(cmd))
+        subprocess.check_output(cmd)
 
 class Subvolumes(object):
     def __init__(self, subvols: list[Subvolume], volume: str):
@@ -92,6 +101,9 @@ class Subvolumes(object):
 
     def from_root(self, root):
         yield from enumerate_from_root(self.roots, root)
+
+    def __str__(self):
+        return self.volume
 
 def sort_by_path(subvols: list[Subvolume]):
     subvols.sort(key=lambda sv: sv.path)
