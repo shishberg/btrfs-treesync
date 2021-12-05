@@ -55,7 +55,7 @@ class Subvolume(object):
                 if sibling.uuid in dst.by_received_uuid:
                     prev_sibling = sibling
             if prev_sibling:
-                send_cmd += ['-c', prev_sibling.full_path]
+                send_cmd += ['-p', prev_sibling.full_path]
         send_cmd.append(self.full_path)
         recv_cmd = [BTRFS_BIN, 'receive', os.path.dirname(os.path.join(dst.volume, self.path))]
         
